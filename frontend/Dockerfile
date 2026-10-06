@@ -2,7 +2,7 @@
 # Imagen de la web: los ficheros estáticos de Angular servidos por nginx sin privilegios. La configuración
 # (dirección de Keycloak) se pone al arrancar con variables de entorno: la misma imagen vale para cualquier entorno.
 
-FROM node:24-alpine AS construccion
+FROM node:26-alpine AS construccion
 WORKDIR /src
 COPY package.json package-lock.json ./
 RUN --mount=type=cache,target=/root/.npm npm ci --no-audit --no-fund
