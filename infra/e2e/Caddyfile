@@ -1,0 +1,14 @@
+# Igual que deploy/Caddyfile, pero en HTTP y en el puerto 8088 (pruebas e2e en local y en la CI).
+:8088 {
+	handle /auth/* {
+		reverse_proxy keycloak:8080
+	}
+
+	handle /api/* {
+		reverse_proxy api:8080
+	}
+
+	handle {
+		reverse_proxy web:8080
+	}
+}

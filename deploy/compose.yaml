@@ -1,0 +1,117 @@
+# Producción en un servidor con Docker: todo bajo un mismo dominio con HTTPS automático (Caddy).
+#
+#   https://DOMINIO/        la web
+#   https://DOMINIO/api/    la API
+#   https://DOMINIO/auth/   Keycloak (inicio de sesión)
+#
+# Las variables van en un fichero .env junto a este (ver .env.ejemplo y docs/despliegue.md).
+name: radar
+
+services:
+  caddy:
+    image: caddy:2.11-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      RADAR_DOMINIO: ${RADAR_DOMINIO:?falta RADAR_DOMINIO}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-datos:/data
+      - caddy-config:/config
+    depends_on:
+      - web
+      - api
+      - keycloak
+
+  web:
+    image: ghcr.io/marnau74/radar-licitaciones-web:${VERSION:?falta VERSION}
+    restart: unless-stopped
+    environment:
+      RADAR_OIDC_EMISOR: https://${RADAR_DOMINIO}/auth/realms/radar
+      RADAR_OIDC_CLIENTE: radar-web
+
+  api:
+    image: ghcr.io/marnau74/radar-licitaciones-api:${VERSION}
+    restart: unless-stopped
+    environment:
+      RADAR_DB_URL: jdbc:postgresql://postgres:5432/radar
+      RADAR_DB_USUARIO: radar
+      RADAR_DB_CLAVE: ${POSTGRES_CLAVE:?falta POSTGRES_CLAVE}
+      # El emisor es la dirección pública de Keycloak (la que va en los tokens); las claves se piden por la red
+      # interna, sin salir a internet ni volver.
+      RADAR_OIDC_EMISOR: https://${RADAR_DOMINIO}/auth/realms/radar
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: http://keycloak:8080/auth/realms/radar/protocol/openid-connect/certs
+      RADAR_SMTP_HOST: ${SMTP_HOST:?falta SMTP_HOST}
+      RADAR_SMTP_PUERTO: ${SMTP_PUERTO:-587}
+      RADAR_SMTP_USUARIO: ${SMTP_USUARIO:-}
+      RADAR_SMTP_CLAVE: ${SMTP_CLAVE:-}
+      SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE: "true"
+      SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH: ${SMTP_AUTENTICACION:-true}
+      RADAR_CORREO_REMITENTE: ${CORREO_REMITENTE:?falta CORREO_REMITENTE}
+      RADAR_URL_WEB: https://${RADAR_DOMINIO}
+      JAVA_TOOL_OPTIONS: -XX:MaxRAMPercentage=75
+    volumes:
+      - descargas:/datos/descargas
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.8
+    restart: unless-stopped
+    command: ["start", "--import-realm"]
+    ports:
+      - "127.0.0.1:8081:8080"
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: ${KEYCLOAK_DB_CLAVE:?falta KEYCLOAK_DB_CLAVE}
+      KC_HOSTNAME: https://${RADAR_DOMINIO}/auth
+      # La consola de administración solo por un túnel SSH al puerto 8081 del servidor (Caddy no la publica).
+      KC_HOSTNAME_ADMIN: http://localhost:8081/auth
+      KC_HTTP_ENABLED: "true"
+      KC_HTTP_RELATIVE_PATH: /auth
+      KC_PROXY_HEADERS: xforwarded
+      KC_HEALTH_ENABLED: "true"
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_ADMIN:?falta KEYCLOAK_ADMIN}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_CLAVE:?falta KEYCLOAK_ADMIN_CLAVE}
+      # Para el realm importado: direcciones de vuelta del cliente web y correo de verificación de cuentas.
+      RADAR_DOMINIO: ${RADAR_DOMINIO}
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_PUERTO: ${SMTP_PUERTO:-587}
+      SMTP_USUARIO: ${SMTP_USUARIO:-}
+      SMTP_CLAVE: ${SMTP_CLAVE:-}
+      SMTP_AUTENTICACION: ${SMTP_AUTENTICACION:-true}
+      CORREO_REMITENTE: ${CORREO_REMITENTE}
+    volumes:
+      - ./keycloak/realm-radar.json:/opt/keycloak/data/import/realm-radar.json:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: radar
+      POSTGRES_USER: radar
+      POSTGRES_PASSWORD: ${POSTGRES_CLAVE}
+      KEYCLOAK_DB_CLAVE: ${KEYCLOAK_DB_CLAVE}
+    volumes:
+      - postgres-datos:/var/lib/postgresql/data
+      - ./postgres/crear-base-keycloak.sh:/docker-entrypoint-initdb.d/crear-base-keycloak.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U radar -d radar"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+volumes:
+  caddy-datos:
+  caddy-config:
+  postgres-datos:
+  descargas:

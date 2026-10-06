@@ -1,0 +1,28 @@
+# Un solo dominio para la web, la API y Keycloak: sin CORS ni cookies entre dominios. Caddy pide y renueva
+# el certificado HTTPS solo.
+{$RADAR_DOMINIO} {
+	encode zstd gzip
+
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		-Server
+	}
+
+	# La consola de administración de Keycloak no se publica: se usa por un túnel SSH (docs/despliegue.md).
+	handle /auth/admin* {
+		respond 404
+	}
+
+	handle /auth/* {
+		reverse_proxy keycloak:8080
+	}
+
+	# Las métricas y el detalle de salud de la API tampoco salen fuera: /actuator no está bajo /api.
+	handle /api/* {
+		reverse_proxy api:8080
+	}
+
+	handle {
+		reverse_proxy web:8080
+	}
+}

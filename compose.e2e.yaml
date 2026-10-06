@@ -1,0 +1,71 @@
+# La aplicación completa como en producción (imágenes construidas aquí y Caddy delante, todo en un mismo
+# origen), con la página de muestra del feed como datos. La usan las pruebas e2e de Playwright:
+#
+#   docker compose -f compose.e2e.yaml up -d --build --wait
+#   cd frontend && npx playwright test
+#
+# La web queda en http://localhost:8088 (cuentas de ejemplo en infra/keycloak/realm-radar.json).
+name: radar-e2e
+
+services:
+  caddy:
+    image: caddy:2.11-alpine
+    ports:
+      - "8088:8088"
+    volumes:
+      - ./infra/e2e/Caddyfile:/etc/caddy/Caddyfile:ro
+    depends_on:
+      - web
+      - api
+      - keycloak
+
+  web:
+    build: ./frontend
+    environment:
+      RADAR_OIDC_EMISOR: http://localhost:8088/auth/realms/radar
+      RADAR_OIDC_CLIENTE: radar-web
+
+  api:
+    build: ./backend
+    environment:
+      RADAR_DB_URL: jdbc:postgresql://postgres:5432/radar
+      RADAR_OIDC_EMISOR: http://localhost:8088/auth/realms/radar
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: http://keycloak:8080/auth/realms/radar/protocol/openid-connect/certs
+      RADAR_SMTP_HOST: mailpit
+      RADAR_URL_WEB: http://localhost:8088
+      RADAR_INGESTA_PROGRAMADA: "false"
+      RADAR_INGESTA_INICIAL: /muestra/muestra.atom
+    volumes:
+      - ./backend/src/test/resources/codice:/muestra:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.8
+    command: ["start-dev", "--import-realm"]
+    environment:
+      KC_HOSTNAME: http://localhost:8088/auth
+      KC_HTTP_RELATIVE_PATH: /auth
+      KC_PROXY_HEADERS: xforwarded
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+    volumes:
+      - ./infra/keycloak/realm-radar.json:/opt/keycloak/data/import/realm-radar.json:ro
+
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: radar
+      POSTGRES_USER: radar
+      POSTGRES_PASSWORD: radar
+    tmpfs:
+      - /var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U radar -d radar"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+
+  mailpit:
+    image: axllent/mailpit:v1.31

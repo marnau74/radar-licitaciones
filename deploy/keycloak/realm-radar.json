@@ -1,0 +1,89 @@
+{
+  "realm": "radar",
+  "displayName": "Radar de licitaciones",
+  "enabled": true,
+  "registrationAllowed": true,
+  "registrationEmailAsUsername": true,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "resetPasswordAllowed": true,
+  "rememberMe": true,
+  "verifyEmail": true,
+  "sslRequired": "external",
+  "internationalizationEnabled": true,
+  "supportedLocales": [
+    "es"
+  ],
+  "defaultLocale": "es",
+  "accessTokenLifespan": 300,
+  "ssoSessionIdleTimeout": 3600,
+  "bruteForceProtected": true,
+  "failureFactor": 5,
+  "passwordPolicy": "length(10) and notUsername and notEmail",
+  "roles": {
+    "realm": [
+      {
+        "name": "admin",
+        "description": "Lanza ingestas y consulta su estado"
+      }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "radar-web",
+      "name": "Radar de licitaciones (web)",
+      "enabled": true,
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": false,
+      "implicitFlowEnabled": false,
+      "protocol": "openid-connect",
+      "rootUrl": "https://${RADAR_DOMINIO}",
+      "baseUrl": "/",
+      "redirectUris": [
+        "https://${RADAR_DOMINIO}/*"
+      ],
+      "webOrigins": [
+        "https://${RADAR_DOMINIO}"
+      ],
+      "attributes": {
+        "pkce.code.challenge.method": "S256",
+        "post.logout.redirect.uris": "https://${RADAR_DOMINIO}/*"
+      },
+      "protocolMappers": [
+        {
+          "name": "audiencia radar-api",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "config": {
+            "included.custom.audience": "radar-api",
+            "access.token.claim": "true",
+            "id.token.claim": "false"
+          }
+        },
+        {
+          "name": "roles del realm",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-realm-role-mapper",
+          "config": {
+            "claim.name": "roles",
+            "multivalued": "true",
+            "access.token.claim": "true",
+            "id.token.claim": "false",
+            "userinfo.token.claim": "false"
+          }
+        }
+      ]
+    }
+  ],
+  "smtpServer": {
+    "host": "${SMTP_HOST}",
+    "port": "${SMTP_PUERTO:587}",
+    "from": "${CORREO_REMITENTE}",
+    "fromDisplayName": "Radar de licitaciones",
+    "starttls": "true",
+    "auth": "${SMTP_AUTENTICACION:true}",
+    "user": "${SMTP_USUARIO:}",
+    "password": "${SMTP_CLAVE:}"
+  }
+}
