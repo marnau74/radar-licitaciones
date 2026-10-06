@@ -11,6 +11,10 @@ updates:
     directory: /frontend
     schedule:
       interval: monthly
+    # La versión mayor de TypeScript la marca Angular: se sube con Angular, no antes.
+    ignore:
+      - dependency-name: typescript
+        update-types: ["version-update:semver-major"]
     groups:
       angular:
         patterns: ["@angular/*", "@angular-devkit/*", "angular-eslint", "typescript"]
@@ -28,6 +32,12 @@ updates:
     directories: ["/backend", "/frontend"]
     schedule:
       interval: monthly
+    # Node y Java se quedan en su versión LTS (24 y 25): el salto de versión mayor se decide a mano.
+    ignore:
+      - dependency-name: node
+        update-types: ["version-update:semver-major"]
+      - dependency-name: eclipse-temurin
+        update-types: ["version-update:semver-major"]
     groups:
       imagenes:
         patterns: ["*"]
