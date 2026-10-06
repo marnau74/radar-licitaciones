@@ -1,0 +1,144 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.saltar {
+  position: absolute;
+  left: 8px;
+  top: -48px;
+  z-index: 10;
+  padding: 0.5rem 1rem;
+  background: var(--acento);
+  color: var(--acento-texto);
+  border-radius: 6px;
+}
+
+.saltar:focus {
+  top: 8px;
+}
+
+.cabecera {
+  background: var(--superficie);
+  border-bottom: 1px solid var(--borde);
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+
+.barra {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  min-height: 60px;
+  flex-wrap: wrap;
+}
+
+.marca {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: var(--acento);
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.marca span {
+  color: var(--texto);
+}
+
+.menu {
+  display: flex;
+  gap: 0.25rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.menu a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.75rem;
+  border-radius: 6px;
+  color: var(--texto-suave);
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.menu a:hover {
+  background: var(--superficie-2);
+  color: var(--texto);
+}
+
+.menu a.activo {
+  color: var(--acento);
+  background: var(--acento-suave);
+}
+
+.insignia {
+  min-width: 1.4em;
+  padding: 0 0.4em;
+  border-radius: 999px;
+  background: var(--acento);
+  color: var(--acento-texto);
+  font-size: 0.75rem;
+  line-height: 1.4em;
+  text-align: center;
+}
+
+.acciones {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-left: auto;
+}
+
+.icono {
+  width: 40px;
+  padding: 0;
+}
+
+.usuario {
+  max-width: 14rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--texto-suave);
+  font-size: 0.9rem;
+}
+
+main {
+  flex: 1;
+  padding: 1.5rem 0 3rem;
+}
+
+main:focus {
+  outline: none;
+}
+
+.pie {
+  border-top: 1px solid var(--borde);
+  padding: 1.5rem 0 1rem;
+  font-size: 0.875rem;
+  background: var(--superficie);
+}
+
+@media (max-width: 720px) {
+  .barra {
+    gap: 0.5rem 1rem;
+    padding-block: 0.5rem;
+  }
+
+  nav {
+    order: 3;
+    width: 100%;
+    overflow-x: auto;
+  }
+
+  .usuario {
+    display: none;
+  }
+}

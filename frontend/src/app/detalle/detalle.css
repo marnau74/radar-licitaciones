@@ -1,0 +1,170 @@
+.volver {
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+}
+
+.titular {
+  margin-bottom: 1.5rem;
+}
+
+.titular h1 {
+  overflow-wrap: anywhere;
+}
+
+.etiquetas {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.anulacion {
+  border-color: var(--anulada);
+  background: var(--anulada-fondo);
+  color: var(--anulada);
+  box-shadow: none;
+}
+
+.rejilla {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: 1.25rem;
+  align-items: start;
+}
+
+.principal,
+.lateral {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.cpv,
+.documentos,
+.resultados {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cpv li {
+  padding: 0.3rem 0;
+  border-bottom: 1px solid var(--borde);
+}
+
+.cpv li:last-child {
+  border-bottom: 0;
+}
+
+.codigo {
+  font-family: var(--mono);
+  font-size: 0.9em;
+  margin-right: 0.4rem;
+}
+
+.tabla-desplazable {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+th,
+td {
+  padding: 0.5rem 0.5rem;
+  border-bottom: 1px solid var(--borde);
+  text-align: left;
+  vertical-align: top;
+}
+
+th {
+  font-size: 0.85rem;
+  color: var(--texto-suave);
+  font-weight: 600;
+}
+
+.num {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.resultados li {
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--borde);
+}
+
+.resultados li:first-child {
+  padding-top: 0;
+}
+
+.resultados li:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.cabeza-resultado {
+  margin-bottom: 0.5rem;
+}
+
+.fecha-plazo {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.ancho {
+  width: 100%;
+}
+
+.jerarquia {
+  font-size: 0.85rem;
+}
+
+.datos.compacta {
+  grid-template-columns: max-content 1fr;
+  font-size: 0.9rem;
+}
+
+.enlaces {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  margin: 1rem 0 0;
+  font-size: 0.9rem;
+}
+
+.documentos li {
+  display: flex;
+  flex-direction: column;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid var(--borde);
+  font-size: 0.9rem;
+  overflow-wrap: anywhere;
+}
+
+.documentos li:last-child {
+  border-bottom: 0;
+}
+
+.documentos .suave {
+  font-size: 0.8rem;
+}
+
+.actualizada {
+  font-size: 0.8rem;
+}
+
+@media (max-width: 900px) {
+  .rejilla {
+    grid-template-columns: 1fr;
+  }
+
+  .lateral {
+    order: -1;
+  }
+}

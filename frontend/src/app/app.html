@@ -1,0 +1,135 @@
+<a class="saltar" href="#contenido">Saltar al contenido</a>
+
+<header class="cabecera">
+  <div class="contenedor barra">
+    <a class="marca" routerLink="/" aria-label="Radar de licitaciones, inicio">
+      <svg viewBox="0 0 32 32" width="28" height="28" aria-hidden="true">
+        <rect width="32" height="32" rx="7" fill="currentColor" />
+        <circle
+          cx="16"
+          cy="16"
+          r="10"
+          fill="none"
+          stroke="var(--superficie)"
+          stroke-width="2"
+          opacity=".55"
+        />
+        <circle
+          cx="16"
+          cy="16"
+          r="5.5"
+          fill="none"
+          stroke="var(--superficie)"
+          stroke-width="2"
+          opacity=".8"
+        />
+        <path
+          d="M16 16 L24 9"
+          stroke="var(--superficie)"
+          stroke-width="2.4"
+          stroke-linecap="round"
+        />
+      </svg>
+      <span>Radar de licitaciones</span>
+    </a>
+
+    <nav aria-label="Principal">
+      <ul class="menu">
+        <li>
+          <a
+            routerLink="/"
+            routerLinkActive="activo"
+            [routerLinkActiveOptions]="{ exact: true }"
+            ariaCurrentWhenActive="page"
+            >Buscar</a
+          >
+        </li>
+        <li>
+          <a routerLink="/cifras" routerLinkActive="activo" ariaCurrentWhenActive="page">Cifras</a>
+        </li>
+        <li>
+          <a routerLink="/alertas" routerLinkActive="activo" ariaCurrentWhenActive="page"
+            >Alertas</a
+          >
+        </li>
+        @if (sesion.iniciada()) {
+          <li>
+            <a routerLink="/avisos" routerLinkActive="activo" ariaCurrentWhenActive="page">
+              Avisos
+              @if (avisosSinLeer() > 0) {
+                <span class="insignia" [attr.aria-label]="avisosSinLeer() + ' sin leer'">{{
+                  avisosSinLeer()
+                }}</span>
+              }
+            </a>
+          </li>
+        }
+      </ul>
+    </nav>
+
+    <div class="acciones">
+      <button
+        type="button"
+        class="boton icono"
+        (click)="tema.siguiente()"
+        [attr.aria-label]="nombreDelTema() + '. Cambiar tema'"
+        [title]="nombreDelTema()"
+      >
+        @switch (tema.preferencia()) {
+          @case ('claro') {
+            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+              <circle cx="12" cy="12" r="4.5" fill="currentColor" />
+              <path
+                d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+              />
+            </svg>
+          }
+          @case ('oscuro') {
+            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+              <path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z" fill="currentColor" />
+            </svg>
+          }
+          @default {
+            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+              <circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="2" />
+              <path d="M12 3.5a8.5 8.5 0 0 1 0 17Z" fill="currentColor" />
+            </svg>
+          }
+        }
+      </button>
+
+      @if (sesion.usuario(); as usuario) {
+        <span class="usuario" [title]="usuario.correo ?? ''">{{ usuario.nombre }}</span>
+        <button type="button" class="boton" (click)="sesion.salir()">Salir</button>
+      } @else if (sesion.servicioDisponible()) {
+        <button type="button" class="boton principal" (click)="sesion.entrar()">Entrar</button>
+      } @else {
+        <span class="usuario" role="status">Inicio de sesión no disponible ahora mismo</span>
+      }
+    </div>
+  </div>
+</header>
+
+<main id="contenido" tabindex="-1">
+  <router-outlet />
+</main>
+
+<footer class="pie">
+  <div class="contenedor">
+    <p>
+      Datos de la
+      <a href="https://contrataciondelsectorpublico.gob.es" rel="noopener"
+        >Plataforma de Contratación del Sector Público</a
+      >
+      (Ministerio de Hacienda), reutilizados según sus condiciones. Se actualizan cada mañana.
+      <a routerLink="/datos">Sobre los datos</a>.
+    </p>
+    <p class="suave">
+      Proyecto de código abierto. No es un servicio oficial: ante cualquier duda, manda lo publicado
+      en la Plataforma.
+    </p>
+  </div>
+</footer>

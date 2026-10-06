@@ -1,0 +1,374 @@
+/*
+ * Estilos globales: variables de diseño (claro y oscuro), base y piezas comunes.
+ * Cada componente tiene sus propios estilos; aquí solo lo que se repite en varios.
+ */
+
+:root {
+  color-scheme: light;
+  --fondo: #f6f7f9;
+  --superficie: #ffffff;
+  --superficie-2: #eef1f5;
+  --texto: #1c2430;
+  --texto-suave: #556070;
+  --borde: #d7dde5;
+  --borde-fuerte: #b5bfcc;
+  --acento: #1d4ed8;
+  --acento-texto: #ffffff;
+  --acento-suave: #e3eafc;
+  --foco: #2563eb;
+  --en-plazo: #15703a;
+  --en-plazo-fondo: #e2f4e9;
+  --pendiente: #8a4b06;
+  --pendiente-fondo: #fbefd9;
+  --cerrada: #4a5565;
+  --cerrada-fondo: #e9edf2;
+  --anulada: #a61b1b;
+  --anulada-fondo: #fbe4e4;
+  --sombra: 0 1px 2px rgb(16 24 40 / 6%), 0 1px 3px rgb(16 24 40 / 8%);
+  --radio: 8px;
+  --ancho: 1180px;
+  --fuente: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --mono: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
+    --fondo: #11161c;
+    --superficie: #182029;
+    --superficie-2: #202a35;
+    --texto: #e5e9ef;
+    --texto-suave: #9ba7b6;
+    --borde: #2d3946;
+    --borde-fuerte: #435163;
+    --acento: #7ea2ff;
+    --acento-texto: #0d1420;
+    --acento-suave: #1f2c4a;
+    --foco: #9db8ff;
+    --en-plazo: #6fd29a;
+    --en-plazo-fondo: #163423;
+    --pendiente: #f2b866;
+    --pendiente-fondo: #3a2a12;
+    --cerrada: #b3bdca;
+    --cerrada-fondo: #262f3a;
+    --anulada: #ff9b9b;
+    --anulada-fondo: #3d1c1c;
+    --sombra: 0 1px 2px rgb(0 0 0 / 40%);
+  }
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --fondo: #11161c;
+  --superficie: #182029;
+  --superficie-2: #202a35;
+  --texto: #e5e9ef;
+  --texto-suave: #9ba7b6;
+  --borde: #2d3946;
+  --borde-fuerte: #435163;
+  --acento: #7ea2ff;
+  --acento-texto: #0d1420;
+  --acento-suave: #1f2c4a;
+  --foco: #9db8ff;
+  --en-plazo: #6fd29a;
+  --en-plazo-fondo: #163423;
+  --pendiente: #f2b866;
+  --pendiente-fondo: #3a2a12;
+  --cerrada: #b3bdca;
+  --cerrada-fondo: #262f3a;
+  --anulada: #ff9b9b;
+  --anulada-fondo: #3d1c1c;
+  --sombra: 0 1px 2px rgb(0 0 0 / 40%);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--fondo);
+  color: var(--texto);
+  font-family: var(--fuente);
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+h1,
+h2,
+h3 {
+  line-height: 1.25;
+  margin: 0 0 0.5em;
+}
+
+h1 {
+  font-size: clamp(1.5rem, 1.2rem + 1.2vw, 2rem);
+}
+
+h2 {
+  font-size: 1.25rem;
+}
+
+h3 {
+  font-size: 1.05rem;
+}
+
+p {
+  margin: 0 0 1em;
+}
+
+a {
+  color: var(--acento);
+  text-underline-offset: 2px;
+}
+
+a:hover {
+  text-decoration-thickness: 2px;
+}
+
+:focus-visible {
+  outline: 3px solid var(--foco);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+img,
+svg {
+  max-width: 100%;
+}
+
+.carga-inicial {
+  padding: 2rem 1rem;
+  color: var(--texto-suave);
+  text-align: center;
+}
+
+/* Solo para lectores de pantalla. */
+.oculto {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.contenedor {
+  max-width: var(--ancho);
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+.suave {
+  color: var(--texto-suave);
+}
+
+.cifra {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Tarjetas y paneles */
+.panel {
+  background: var(--superficie);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+  box-shadow: var(--sombra);
+  padding: 1.25rem;
+}
+
+/* Botones */
+.boton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4em;
+  min-height: 40px;
+  padding: 0.45em 1em;
+  border: 1px solid var(--borde-fuerte);
+  border-radius: 6px;
+  background: var(--superficie);
+  color: var(--texto);
+  font: inherit;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.boton:hover {
+  background: var(--superficie-2);
+}
+
+.boton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.boton.principal {
+  background: var(--acento);
+  border-color: var(--acento);
+  color: var(--acento-texto);
+}
+
+.boton.principal:hover {
+  filter: brightness(1.08);
+}
+
+.boton.peligro {
+  color: var(--anulada);
+}
+
+.boton.enlace {
+  border-color: transparent;
+  background: none;
+  color: var(--acento);
+  padding-inline: 0.25em;
+}
+
+/* Formularios */
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  margin-bottom: 1rem;
+}
+
+.campo > label,
+.campo > .etiqueta,
+fieldset > legend {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+fieldset {
+  border: 0;
+  padding: 0;
+  margin: 0 0 1rem;
+  min-width: 0;
+}
+
+input[type='text'],
+input[type='search'],
+input[type='number'],
+input[type='date'],
+select {
+  width: 100%;
+  min-height: 40px;
+  padding: 0.45em 0.6em;
+  border: 1px solid var(--borde-fuerte);
+  border-radius: 6px;
+  background: var(--superficie);
+  color: var(--texto);
+  font: inherit;
+}
+
+input::placeholder {
+  color: var(--texto-suave);
+}
+
+.casilla {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 32px;
+  font-size: 0.95rem;
+}
+
+.casilla input {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  accent-color: var(--acento);
+}
+
+.ayuda {
+  font-size: 0.85rem;
+  color: var(--texto-suave);
+}
+
+.error {
+  color: var(--anulada);
+  font-size: 0.9rem;
+}
+
+/* Etiquetas de estado de una licitación */
+.estado {
+  display: inline-block;
+  padding: 0.1em 0.6em;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  white-space: nowrap;
+  background: var(--cerrada-fondo);
+  color: var(--cerrada);
+}
+
+.estado.PUB {
+  background: var(--en-plazo-fondo);
+  color: var(--en-plazo);
+}
+
+.estado.EV,
+.estado.PRE {
+  background: var(--pendiente-fondo);
+  color: var(--pendiente);
+}
+
+.estado.ANUL,
+.estado.anulada {
+  background: var(--anulada-fondo);
+  color: var(--anulada);
+}
+
+/* Fichas de datos (término y valor) */
+.datos {
+  display: grid;
+  grid-template-columns: minmax(9rem, max-content) 1fr;
+  gap: 0.4rem 1.25rem;
+  margin: 0;
+}
+
+.datos dt {
+  color: var(--texto-suave);
+}
+
+.datos dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 560px) {
+  .datos {
+    grid-template-columns: 1fr;
+    gap: 0.1rem;
+  }
+
+  .datos dd {
+    margin-bottom: 0.5rem;
+  }
+}
+
+.aviso-vacio {
+  padding: 2rem 1rem;
+  text-align: center;
+  color: var(--texto-suave);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

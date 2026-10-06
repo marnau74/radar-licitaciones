@@ -1,0 +1,76 @@
+<div class="contenedor">
+  <h1>Cifras</h1>
+  <p class="suave">
+    Lo que se puede presentar hoy y cómo evoluciona lo que se publica. Importes del presupuesto
+    base, sin IVA.
+  </p>
+
+  @if (error(); as mensaje) {
+    <div class="panel" role="alert">
+      <p>{{ mensaje }}</p>
+      <button type="button" class="boton" (click)="estadisticas.reload()">Reintentar</button>
+    </div>
+  } @else if (estadisticas.hasValue()) {
+    @let e = estadisticas.value();
+    <section class="resumen" aria-label="Resumen">
+      <a class="panel dato" routerLink="/">
+        <span class="numero cifra">{{ e.enPlazo | entero }}</span>
+        <span class="suave">licitaciones en plazo</span>
+      </a>
+      <div class="panel dato">
+        <span class="numero cifra">{{ importeEnPlazo() }}</span>
+        <span class="suave">en juego en las que están en plazo</span>
+      </div>
+      <div class="panel dato">
+        <span class="numero cifra">{{ e.publicadasUltimos30Dias | entero }}</span>
+        <span class="suave">publicadas en los últimos 30 días</span>
+      </div>
+      <div class="panel dato">
+        <span class="numero cifra">{{ e.total | entero }}</span>
+        <span class="suave">licitaciones en el radar</span>
+      </div>
+    </section>
+
+    <div class="rejilla">
+      <section class="panel" aria-labelledby="t-tipo">
+        <h2 id="t-tipo">En plazo por tipo de contrato</h2>
+        <rl-grafica-barras
+          [datos]="porTipo()"
+          titulo="Licitaciones en plazo por tipo de contrato"
+        />
+      </section>
+
+      <section class="panel" aria-labelledby="t-meses">
+        <h2 id="t-meses">Publicadas cada mes</h2>
+        <rl-grafica-meses
+          [datos]="e.publicadasPorMes"
+          titulo="Licitaciones publicadas en los últimos doce meses"
+        />
+        <p class="ayuda">
+          Según la fecha del anuncio de licitación. El mes en curso aún no está completo.
+        </p>
+      </section>
+
+      <section class="panel ancha" aria-labelledby="t-comunidad">
+        <h2 id="t-comunidad">En plazo por comunidad autónoma</h2>
+        <rl-grafica-barras
+          [datos]="porComunidad()"
+          titulo="Licitaciones en plazo por comunidad autónoma"
+        />
+        <p class="ayuda">
+          Según el lugar de ejecución. Las que no lo concretan más allá de «España» no aparecen.
+        </p>
+      </section>
+    </div>
+
+    <p class="suave pie-cifras">
+      Calculadas el {{ e.calculadasEn | fecha: true }}.
+      @if (ultimaIngesta(); as i) {
+        Última actualización de datos: {{ i.fin | fecha: true }} ({{ i.nuevas | entero }} nuevas,
+        {{ i.actualizadas | entero }} con cambios).
+      }
+    </p>
+  } @else {
+    <p class="suave" aria-live="polite">Calculando…</p>
+  }
+</div>

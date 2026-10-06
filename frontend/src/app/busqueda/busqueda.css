@@ -1,0 +1,135 @@
+.buscador {
+  margin-bottom: 1.5rem;
+}
+
+.entradilla {
+  margin-bottom: 1rem;
+}
+
+form {
+  display: flex;
+  gap: 0.5rem;
+  max-width: 760px;
+}
+
+form input {
+  flex: 1;
+  min-height: 46px;
+  font-size: 1.05rem;
+}
+
+form .boton {
+  min-height: 46px;
+}
+
+.disposicion {
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr);
+  gap: 2rem;
+  align-items: start;
+}
+
+.filtros {
+  position: sticky;
+  top: 76px;
+  max-height: calc(100vh - 92px);
+  overflow-y: auto;
+  padding-right: 0.25rem;
+}
+
+.plegable > summary {
+  display: none;
+}
+
+.cabeza {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.total {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.herramientas {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.herramientas select {
+  width: auto;
+}
+
+.lista {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.lista:focus {
+  outline: none;
+}
+
+.aviso-error p {
+  margin-bottom: 0.75rem;
+}
+
+.esqueleto {
+  height: 130px;
+  border-radius: var(--radio);
+  background: linear-gradient(90deg, var(--superficie-2), var(--superficie), var(--superficie-2));
+  background-size: 200% 100%;
+  animation: brillo 1.4s linear infinite;
+}
+
+@keyframes brillo {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@media (max-width: 900px) {
+  .disposicion {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .filtros {
+    position: static;
+    max-height: none;
+    overflow: visible;
+  }
+
+  .plegable {
+    border: 1px solid var(--borde);
+    border-radius: var(--radio);
+    background: var(--superficie);
+    padding: 0 1rem;
+  }
+
+  .plegable > summary {
+    display: list-item;
+    padding: 0.75rem 0;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .plegable[open] > summary {
+    margin-bottom: 0.5rem;
+  }
+}
+
+@media (max-width: 560px) {
+  form {
+    flex-direction: column;
+  }
+}

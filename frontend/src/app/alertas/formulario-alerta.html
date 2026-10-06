@@ -1,0 +1,194 @@
+@let d = datos();
+
+<div class="contenedor estrecho">
+  <p class="volver"><a routerLink="/alertas">← Mis alertas</a></p>
+  <h1>{{ editando() ? 'Editar alerta' : 'Nueva alerta' }}</h1>
+
+  @if (errorCarga(); as mensaje) {
+    <p class="panel" role="alert">{{ mensaje }}</p>
+  } @else if (cargando()) {
+    <p class="suave">Cargando…</p>
+  } @else {
+    <div class="disposicion">
+      <form class="panel" (submit)="guardar($event)" novalidate>
+        @if (enviado() && (errores().length || errorServidor())) {
+          <div id="errores-alerta" class="errores" role="alert" tabindex="-1">
+            <ul>
+              @for (e of errores(); track e) {
+                <li>{{ e }}</li>
+              }
+              @if (errorServidor(); as s) {
+                <li>{{ s }}</li>
+              }
+            </ul>
+          </div>
+        }
+
+        <div class="campo">
+          <label for="alerta-nombre">Nombre</label>
+          <input
+            id="alerta-nombre"
+            type="text"
+            maxlength="80"
+            required
+            [value]="d.nombre"
+            (input)="cambiar('nombre', $any($event.target).value)"
+            placeholder="Por ejemplo: Limpieza en Andalucía"
+          />
+        </div>
+
+        <div class="campo">
+          <label for="alerta-texto">Palabras</label>
+          <input
+            id="alerta-texto"
+            type="text"
+            maxlength="200"
+            [value]="d.texto ?? ''"
+            (input)="cambiar('texto', $any($event.target).value || null)"
+            placeholder="limpieza, «mantenimiento de ascensores», -vehículos"
+          />
+          <span class="ayuda"
+            >Admite frases entre comillas y palabras a excluir con un guion delante.</span
+          >
+        </div>
+
+        <fieldset>
+          <legend>Tipo de contrato</legend>
+          <div class="columnas">
+            @for (t of tipos(); track t.codigo) {
+              <label class="casilla">
+                <input
+                  type="checkbox"
+                  [checked]="d.tiposContrato.includes(t.codigo)"
+                  (change)="alternar('tiposContrato', t.codigo, $any($event.target).checked)"
+                />
+                {{ t.nombre }}
+              </label>
+            }
+          </div>
+        </fieldset>
+
+        <details [open]="d.procedimientos.length > 0">
+          <summary>Procedimiento</summary>
+          <fieldset>
+            <legend class="oculto">Procedimiento</legend>
+            <div class="columnas">
+              @for (p of procedimientos(); track p.codigo) {
+                <label class="casilla">
+                  <input
+                    type="checkbox"
+                    [checked]="d.procedimientos.includes(p.codigo)"
+                    (change)="alternar('procedimientos', p.codigo, $any($event.target).checked)"
+                  />
+                  {{ p.nombre }}
+                </label>
+              }
+            </div>
+          </fieldset>
+        </details>
+
+        <rl-selector-lugar [seleccionados]="d.nuts" (cambio)="cambiar('nuts', $event)" />
+        <rl-selector-cpv [seleccionados]="d.cpv" (cambio)="cambiar('cpv', $event)" />
+
+        <fieldset>
+          <legend>Importe sin IVA (€)</legend>
+          <div class="dos">
+            <div class="campo">
+              <label for="alerta-min" class="pequena">Desde</label>
+              <input
+                id="alerta-min"
+                type="number"
+                min="0"
+                step="1000"
+                inputmode="numeric"
+                [value]="d.importeMinimo ?? ''"
+                (input)="importe('importeMinimo', $any($event.target).value)"
+              />
+            </div>
+            <div class="campo">
+              <label for="alerta-max" class="pequena">Hasta</label>
+              <input
+                id="alerta-max"
+                type="number"
+                min="0"
+                step="1000"
+                inputmode="numeric"
+                [value]="d.importeMaximo ?? ''"
+                (input)="importe('importeMaximo', $any($event.target).value)"
+              />
+            </div>
+          </div>
+        </fieldset>
+
+        <label class="casilla">
+          <input
+            type="checkbox"
+            [checked]="d.soloFondosUe"
+            (change)="cambiar('soloFondosUe', $any($event.target).checked)"
+          />
+          Solo con fondos de la UE
+        </label>
+
+        <hr />
+
+        <label class="casilla">
+          <input
+            type="checkbox"
+            [checked]="d.porCorreo"
+            (change)="cambiar('porCorreo', $any($event.target).checked)"
+          />
+          Mandarme un correo resumen
+          @if (sesion.usuario()?.correo; as correo) {
+            <span class="suave">a {{ correo }}</span>
+          }
+        </label>
+        <label class="casilla">
+          <input
+            type="checkbox"
+            [checked]="d.activa"
+            (change)="cambiar('activa', $any($event.target).checked)"
+          />
+          Activa (desmárcala para pausarla sin borrarla)
+        </label>
+
+        <div class="botones">
+          <button type="submit" class="boton principal" [disabled]="enviando()">
+            {{ enviando() ? 'Guardando…' : editando() ? 'Guardar cambios' : 'Crear alerta' }}
+          </button>
+          <a class="boton" routerLink="/alertas">Cancelar</a>
+        </div>
+      </form>
+
+      <aside class="panel previa" aria-live="polite" aria-labelledby="t-previa">
+        <h2 id="t-previa">Ahora mismo</h2>
+        @if (vistaPrevia.hasValue()) {
+          <p>
+            <span class="cifra grande">{{ vistaPrevia.value().total | entero }}</span>
+            {{
+              vistaPrevia.value().total === 1
+                ? 'licitación en plazo encaja'
+                : 'licitaciones en plazo encajan'
+            }}
+            con estos criterios.
+          </p>
+          @if (vistaPrevia.value().total > 0) {
+            <p class="suave pequena">Las más recientes:</p>
+            <ul>
+              @for (l of vistaPrevia.value().elementos; track l.id) {
+                <li>
+                  <a [routerLink]="['/licitaciones', l.id]" target="_blank">{{ l.titulo }}</a>
+                </li>
+              }
+            </ul>
+          }
+          @if (vistaPrevia.value().total > 50) {
+            <p class="ayuda">Son muchas: afina la alerta para que los avisos te sirvan.</p>
+          }
+        } @else if (vistaPrevia.isLoading()) {
+          <p class="suave">Calculando…</p>
+        }
+        <p class="ayuda">Solo se avisa de las que se publiquen a partir de hoy.</p>
+      </aside>
+    </div>
+  }
+</div>

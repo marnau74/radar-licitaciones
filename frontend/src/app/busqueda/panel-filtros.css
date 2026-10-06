@@ -1,0 +1,69 @@
+:host {
+  display: block;
+}
+
+legend {
+  margin-bottom: 0.3rem;
+}
+
+details {
+  margin-top: 0.25rem;
+}
+
+summary {
+  cursor: pointer;
+  color: var(--acento);
+  font-size: 0.9rem;
+  padding: 0.25rem 0;
+}
+
+.dos {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+}
+
+.dos .campo {
+  margin-bottom: 0;
+}
+
+.etiqueta-pequena {
+  font-size: 0.8rem;
+  color: var(--texto-suave);
+}
+
+.organo {
+  margin: 1rem 0;
+}
+
+.organo .etiqueta {
+  display: block;
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-bottom: 0.3rem;
+}
+
+.ficha {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.15rem 0.2rem 0.15rem 0.6rem;
+  border-radius: 999px;
+  background: var(--acento-suave);
+  font-size: 0.85rem;
+}
+
+.ficha button {
+  border: 0;
+  background: none;
+  color: inherit;
+  font-size: 1.1rem;
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.limpiar {
+  margin-top: 0.5rem;
+}

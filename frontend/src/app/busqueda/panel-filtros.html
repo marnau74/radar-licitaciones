@@ -1,0 +1,162 @@
+@let f = filtro();
+
+<fieldset>
+  <legend>Estado</legend>
+  @for (estado of estados(); track estado.codigo) {
+    <label class="casilla">
+      <input
+        type="checkbox"
+        [checked]="f.estado.includes(estado.codigo)"
+        (change)="alternar('estado', estado.codigo, $any($event.target).checked)"
+      />
+      {{ estado.nombre }}
+    </label>
+  }
+  @if (f.estado.length === 0) {
+    <p class="ayuda">Sin marcar ninguno, salen todas.</p>
+  }
+</fieldset>
+
+<fieldset>
+  <legend>Tipo de contrato</legend>
+  @for (tipo of tiposPrincipales(); track tipo.codigo) {
+    <label class="casilla">
+      <input
+        type="checkbox"
+        [checked]="f.tipo.includes(tipo.codigo)"
+        (change)="alternar('tipo', tipo.codigo, $any($event.target).checked)"
+      />
+      {{ tipo.nombre }}
+    </label>
+  }
+  <details [open]="f.tipo.some((t) => !['1', '2', '3'].includes(t))">
+    <summary>Otros tipos</summary>
+    @for (tipo of otrosTipos(); track tipo.codigo) {
+      <label class="casilla">
+        <input
+          type="checkbox"
+          [checked]="f.tipo.includes(tipo.codigo)"
+          (change)="alternar('tipo', tipo.codigo, $any($event.target).checked)"
+        />
+        {{ tipo.nombre }}
+      </label>
+    }
+  </details>
+</fieldset>
+
+<div class="campo">
+  <label for="filtro-procedimiento">Procedimiento</label>
+  <select
+    id="filtro-procedimiento"
+    (change)="
+      cambio.emit({ procedimiento: $any($event.target).value ? [$any($event.target).value] : [] })
+    "
+  >
+    <option value="" [selected]="f.procedimiento.length === 0">Cualquiera</option>
+    @for (p of procedimientos(); track p.codigo) {
+      <option [value]="p.codigo" [selected]="f.procedimiento[0] === p.codigo">
+        {{ p.nombre }}
+      </option>
+    }
+  </select>
+</div>
+
+<rl-selector-lugar [seleccionados]="f.nuts" (cambio)="cambio.emit({ nuts: $event })" />
+
+<rl-selector-cpv [seleccionados]="f.cpv" (cambio)="cambio.emit({ cpv: $event })" />
+
+<fieldset>
+  <legend>Importe sin IVA (€)</legend>
+  <div class="dos">
+    <div class="campo">
+      <label for="filtro-importe-min" class="oculto">Importe mínimo</label>
+      <input
+        id="filtro-importe-min"
+        type="number"
+        min="0"
+        step="1000"
+        inputmode="numeric"
+        placeholder="Desde"
+        [value]="f.importeMin ?? ''"
+        (change)="numero('importeMin', $any($event.target).value)"
+      />
+    </div>
+    <div class="campo">
+      <label for="filtro-importe-max" class="oculto">Importe máximo</label>
+      <input
+        id="filtro-importe-max"
+        type="number"
+        min="0"
+        step="1000"
+        inputmode="numeric"
+        placeholder="Hasta"
+        [value]="f.importeMax ?? ''"
+        (change)="numero('importeMax', $any($event.target).value)"
+      />
+    </div>
+  </div>
+</fieldset>
+
+<fieldset>
+  <legend>Fin del plazo de presentación</legend>
+  <div class="dos">
+    <div class="campo">
+      <label for="filtro-plazo-desde" class="etiqueta-pequena">Desde</label>
+      <input
+        id="filtro-plazo-desde"
+        type="date"
+        [value]="f.plazoDesde ?? ''"
+        (change)="fecha('plazoDesde', $any($event.target).value)"
+      />
+    </div>
+    <div class="campo">
+      <label for="filtro-plazo-hasta" class="etiqueta-pequena">Hasta</label>
+      <input
+        id="filtro-plazo-hasta"
+        type="date"
+        [value]="f.plazoHasta ?? ''"
+        (change)="fecha('plazoHasta', $any($event.target).value)"
+      />
+    </div>
+  </div>
+</fieldset>
+
+<label class="casilla">
+  <input
+    type="checkbox"
+    [checked]="f.abiertas"
+    (change)="cambio.emit({ abiertas: $any($event.target).checked })"
+  />
+  Solo con el plazo abierto
+</label>
+
+<label class="casilla">
+  <input
+    type="checkbox"
+    [checked]="f.fondosUe"
+    (change)="cambio.emit({ fondosUe: $any($event.target).checked })"
+  />
+  Solo con fondos de la UE
+</label>
+
+@if (f.organo !== null) {
+  <div class="organo">
+    <span class="etiqueta">Órgano de contratación</span>
+    <span class="ficha">
+      {{ organo.hasValue() ? organo.value().nombre : 'Órgano ' + f.organo }}
+      <button
+        type="button"
+        (click)="cambio.emit({ organo: null })"
+        aria-label="Quitar el filtro de órgano"
+      >
+        ×
+      </button>
+    </span>
+  </div>
+}
+
+@if (hayFiltros()) {
+  <button type="button" class="boton enlace limpiar" (click)="limpiar()">
+    Quitar todos los filtros
+  </button>
+}

@@ -1,0 +1,91 @@
+@let f = filtro();
+
+<div class="contenedor">
+  <section class="buscador" aria-labelledby="titulo-busqueda">
+    <h1 id="titulo-busqueda">Licitaciones públicas</h1>
+    <p class="suave entradilla">
+      Todo lo que se licita en la Plataforma de Contratación del Sector Público, actualizado cada
+      mañana.
+    </p>
+    <form role="search" (submit)="buscar($event, texto.value)">
+      <label for="texto-busqueda" class="oculto">Buscar</label>
+      <input
+        #texto
+        id="texto-busqueda"
+        type="search"
+        name="q"
+        [value]="f.q"
+        placeholder="Qué buscas: «limpieza de colegios», «software», un órgano, una empresa…"
+        enterkeyhint="search"
+      />
+      <button type="submit" class="boton principal">Buscar</button>
+    </form>
+  </section>
+
+  <div class="disposicion">
+    <aside class="filtros" aria-label="Filtros">
+      <details
+        class="plegable"
+        [open]="filtrosAbiertos()"
+        (toggle)="filtrosAbiertos.set($any($event.target).open)"
+      >
+        <summary>
+          Filtros
+          @if (criterios() > 0) {
+            <span class="suave">({{ criterios() }})</span>
+          }
+        </summary>
+        <rl-panel-filtros [filtro]="f" (cambio)="aplicar($event)" />
+      </details>
+    </aside>
+
+    <section class="resultados" aria-labelledby="titulo-resultados">
+      <div class="cabeza">
+        <h2 id="titulo-resultados" class="total" aria-live="polite">
+          @if (resultados.hasValue()) {
+            <span class="cifra">{{ resultados.value().total | entero }}</span>
+            {{ resultados.value().total === 1 ? 'licitación' : 'licitaciones' }}
+          } @else if (resultados.isLoading()) {
+            Buscando…
+          }
+        </h2>
+        <div class="herramientas">
+          <label for="orden" class="oculto">Ordenar por</label>
+          <select id="orden" (change)="ordenar($any($event.target).value)">
+            @for (o of ordenes; track o.valor) {
+              <option [value]="o.valor" [selected]="o.valor === f.orden">{{ o.nombre }}</option>
+            }
+          </select>
+          <a class="boton" routerLink="/alertas/nueva" [queryParams]="paraAlerta()">Crear alerta</a>
+        </div>
+      </div>
+
+      <div id="resultados" tabindex="-1" class="lista" [attr.aria-busy]="resultados.isLoading()">
+        @if (error(); as mensaje) {
+          <div class="panel aviso-error" role="alert">
+            <p>{{ mensaje }}</p>
+            <button type="button" class="boton" (click)="resultados.reload()">Reintentar</button>
+          </div>
+        } @else if (resultados.hasValue()) {
+          @for (licitacion of resultados.value().elementos; track licitacion.id) {
+            <rl-tarjeta-licitacion [licitacion]="licitacion" />
+          } @empty {
+            <div class="aviso-vacio panel">
+              <p>No hay licitaciones con estos criterios.</p>
+              <p>Prueba con menos filtros u otras palabras.</p>
+            </div>
+          }
+          <rl-paginacion
+            [pagina]="resultados.value().pagina"
+            [paginas]="resultados.value().paginas"
+            (cambiar)="irAPagina($event)"
+          />
+        } @else {
+          @for (i of [1, 2, 3]; track i) {
+            <div class="esqueleto" aria-hidden="true"></div>
+          }
+        }
+      </div>
+    </section>
+  </div>
+</div>

@@ -1,0 +1,7 @@
+{
+  "api": "/api",
+  "oidc": {
+    "emisor": "http://localhost:8180/realms/radar",
+    "cliente": "radar-web"
+  }
+}
