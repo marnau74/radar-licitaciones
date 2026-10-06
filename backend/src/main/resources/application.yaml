@@ -1,0 +1,96 @@
+# Configuración por defecto: apunta al entorno de desarrollo del compose.yaml de la raíz.
+# En producción todo se sobrescribe con variables de entorno (ver docs/despliegue.md).
+spring:
+  application:
+    name: radar-api
+  threads:
+    virtual:
+      enabled: true
+  datasource:
+    url: ${RADAR_DB_URL:jdbc:postgresql://localhost:5433/radar}
+    username: ${RADAR_DB_USUARIO:radar}
+    password: ${RADAR_DB_CLAVE:radar}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+  flyway:
+    locations: classpath:db/migration
+  batch:
+    job:
+      enabled: false          # los jobs se lanzan desde el planificador o la API, nunca al arrancar
+  modulith:
+    events:
+      jdbc:
+        schema-initialization:
+          enabled: false      # la tabla la crea Flyway (V3)
+      republish-outstanding-events-on-restart: true
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${RADAR_OIDC_EMISOR:http://localhost:8180/realms/radar}
+          audiences: radar-api
+  mail:
+    host: ${RADAR_SMTP_HOST:localhost}
+    port: ${RADAR_SMTP_PUERTO:1025}
+    username: ${RADAR_SMTP_USUARIO:}
+    password: ${RADAR_SMTP_CLAVE:}
+  jackson:
+    default-property-inclusion: always
+  mvc:
+    problemdetails:
+      enabled: true
+    format:
+      date: iso
+      date-time: iso
+
+server:
+  port: ${RADAR_PUERTO:8080}
+  forward-headers-strategy: framework
+  shutdown: graceful
+  error:
+    include-stacktrace: never
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus,metrics,modulith
+  endpoint:
+    health:
+      probes:
+        enabled: true
+  health:
+    mail:
+      enabled: false
+
+# La documentación de la API es pública a propósito: la API también lo es.
+springdoc:
+  api-docs:
+    enabled: true
+    path: /api/openapi
+  swagger-ui:
+    enabled: true
+    path: /api/docs
+
+radar:
+  ingesta:
+    feed-url: https://contrataciondelsectorpublico.gob.es/sindicacion/sindicacion_643/licitacionesPerfilesContratanteCompleto3.atom
+    paquetes-url: https://contrataciondelsectorpublico.gob.es/sindicacion/sindicacion_643/licitacionesPerfilesContratanteCompleto3_{periodo}.zip
+    directorio-descargas: ${RADAR_DESCARGAS:../datos/descargas}
+    cron: ${RADAR_INGESTA_CRON:0 30 7 * * *}
+    zona: Europe/Madrid
+    programada: ${RADAR_INGESTA_PROGRAMADA:true}
+    max-paginas-feed: 200
+    paginas-feed-sin-marca: 20
+    tiempo-maximo-peticion: 10m
+    hosts-permitidos:
+      - contrataciondelsectorpublico.gob.es
+      - contrataciondelestado.es
+    fichero-inicial: ${RADAR_INGESTA_INICIAL:}
+  correo:
+    remitente: ${RADAR_CORREO_REMITENTE:avisos@radar.localhost}
+    url-web: ${RADAR_URL_WEB:http://localhost:4200}
+    envio-activo: ${RADAR_CORREO_ACTIVO:true}
+    intervalo: 30s

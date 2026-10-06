@@ -1,0 +1,24 @@
+# Java / Maven
+target/
+!.mvn/wrapper/maven-wrapper.jar
+
+# Angular / Node
+node_modules/
+dist/
+.angular/
+coverage/
+test-results/
+playwright-report/
+
+# Datos descargados de la Plataforma de Contratación (se regeneran)
+datos/
+
+# Entorno local
+.env
+*.log
+
+# Editores
+.idea/
+*.iml
+.vscode/
+.DS_Store
