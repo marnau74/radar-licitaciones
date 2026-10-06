@@ -11,7 +11,7 @@ test-results/
 playwright-report/
 
 # Datos descargados de la Plataforma de Contratación (se regeneran)
-datos/
+/datos/
 
 # Entorno local
 .env
