@@ -23,7 +23,7 @@ import {
   urlDesdeFiltro,
 } from '../nucleo/filtro';
 import { EnteroPipe } from '../nucleo/formato';
-import { LicitacionResumen, Pagina } from '../nucleo/modelo';
+import { EstadoDeIa, LicitacionResumen, Pagina } from '../nucleo/modelo';
 import { PanelFiltros } from './panel-filtros';
 
 /** La portada: buscar licitaciones. Todo el estado de la búsqueda está en la URL. */
@@ -50,6 +50,8 @@ export class Busqueda {
   protected readonly error = computed(() =>
     this.resultados.error() ? mensajeDeError(this.resultados.error()) : null,
   );
+  /** Si el servidor tiene la búsqueda por significado, se ofrece debajo del buscador. */
+  protected readonly ia = httpResource<EstadoDeIa>(() => `${this.api}/v1/ia/estado`);
 
   /** Los parámetros para crear una alerta con esta misma búsqueda. */
   protected readonly paraAlerta = computed(() => urlDesdeFiltro({ ...this.filtro(), pagina: 1 }));

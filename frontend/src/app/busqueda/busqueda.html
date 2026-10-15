@@ -20,6 +20,12 @@
       />
       <button type="submit" class="boton principal">Buscar</button>
     </form>
+    @if (ia.value()?.busqueda) {
+      <p class="suave significado">
+        ¿No sale con esas palabras?
+        <a routerLink="/significado" [queryParams]="{ q: f.q || null }">Búscalo por significado</a>.
+      </p>
+    }
   </section>
 
   <div class="disposicion">

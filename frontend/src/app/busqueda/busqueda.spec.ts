@@ -77,6 +77,9 @@ describe('Busqueda', () => {
     const harness = await RouterTestingHarness.create(url);
     TestBed.tick();
     servidor.match('/api/v1/catalogos').forEach((p) => p.flush(CATALOGOS));
+    servidor
+      .match('/api/v1/ia/estado')
+      .forEach((p) => p.flush({ resumenes: false, modelo: null, busqueda: false }));
     const peticion = servidor.expectOne((p) => p.url === '/api/v1/licitaciones');
     return { harness, peticion };
   }

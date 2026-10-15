@@ -6,6 +6,7 @@ import { mensajeDeError } from '../nucleo/api';
 import { CONFIGURACION } from '../nucleo/configuracion';
 import { EurosPipe, FechaPipe, etiquetaDeEstado, plazoRestante } from '../nucleo/formato';
 import { DetalleDeLicitacion } from '../nucleo/modelo';
+import { ResumenesIa } from './resumenes-ia';
 
 const TIPOS_DE_DOCUMENTO = {
   PLIEGO_ADMINISTRATIVO: 'Pliego de cláusulas administrativas',
@@ -16,7 +17,7 @@ const TIPOS_DE_DOCUMENTO = {
 /** La ficha de una licitación. */
 @Component({
   selector: 'rl-detalle',
-  imports: [RouterLink, EurosPipe, FechaPipe],
+  imports: [RouterLink, EurosPipe, FechaPipe, ResumenesIa],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './detalle.html',
   styleUrl: './detalle.css',
