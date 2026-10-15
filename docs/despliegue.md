@@ -86,6 +86,20 @@ docker compose pull && docker compose up -d
 
 Las migraciones se aplican solas al arrancar la API.
 
+**Al pasar a la 0.2.0** la base de datos cambia de imagen: de `postgres:17-alpine` a `pgvector/pgvector:pg17` (la
+misma versión 17, con la extensión pgvector para la búsqueda por significado). Los datos sirven tal cual, pero la
+nueva imagen ordena el texto con otra librería (glibc en lugar de musl), así que hay que reconstruir los índices de
+texto una vez, tras arrancarla y antes de abrir el servicio:
+
+```bash
+docker compose up -d postgres
+docker compose exec postgres psql -U radar -d radar -c 'REINDEX DATABASE radar;'
+docker compose up -d
+```
+
+La IA es opcional y está apagada si no se configura: variables `IA_*` y `ANTHROPIC_API_KEY` del `.env` (ver
+[ADR 6](adr/0006-ia.md)).
+
 ## 8. Copias de seguridad
 
 Toda la información está en PostgreSQL (licitaciones, alertas, avisos y, en su base, Keycloak):
