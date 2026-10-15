@@ -2,7 +2,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { CONFIGURACION } from './configuracion';
-import { Alerta, DatosDeAlerta, Problema } from './modelo';
+import { Alerta, DatosDeAlerta, Problema, ResumenGuardado } from './modelo';
 
 /**
  * Las operaciones que cambian algo (alertas, avisos). Las lecturas se hacen con `httpResource` en cada página, que ya
@@ -27,6 +27,15 @@ export class Api {
 
   marcarAvisosLeidos(): Promise<unknown> {
     return firstValueFrom(this.http.post(`${this.base}/v1/avisos/leidos`, null));
+  }
+
+  /** Resume un pliego con IA (necesita sesión; puede tardar un minuto). Si ya estaba resumido, devuelve el guardado. */
+  resumirPliego(licitacion: number, documento: string): Promise<ResumenGuardado> {
+    return firstValueFrom(
+      this.http.post<ResumenGuardado>(`${this.base}/v1/licitaciones/${licitacion}/resumenes`, {
+        documento,
+      }),
+    );
   }
 
   /** Solo administradores: el feed (lo nuevo) o un paquete histórico (AAAA o AAAAMM). */

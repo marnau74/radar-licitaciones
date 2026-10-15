@@ -133,3 +133,8 @@ form .boton {
     flex-direction: column;
   }
 }
+
+.significado {
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+}

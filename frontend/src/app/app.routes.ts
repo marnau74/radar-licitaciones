@@ -8,6 +8,11 @@ export const rutas: Routes = [
     loadComponent: () => import('./busqueda/busqueda').then((m) => m.Busqueda),
   },
   {
+    path: 'significado',
+    title: 'Buscar por significado · Radar de licitaciones',
+    loadComponent: () => import('./busqueda/significado').then((m) => m.Significado),
+  },
+  {
     path: 'licitaciones/:id',
     title: 'Licitación · Radar de licitaciones',
     loadComponent: () => import('./detalle/detalle').then((m) => m.Detalle),

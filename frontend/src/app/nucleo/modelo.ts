@@ -187,3 +187,38 @@ export interface Problema {
   status?: number;
   errores?: { campo: string; mensaje: string }[];
 }
+
+/** Qué funciones de IA tiene el servidor (`GET /v1/ia/estado`). */
+export interface EstadoDeIa {
+  resumenes: boolean;
+  /** Con qué se resumen los pliegos (p. ej. `claude/claude-opus-5-5`), o null. */
+  modelo: string | null;
+  busqueda: boolean;
+}
+
+export interface ResumenDePliego {
+  objeto: string;
+  presupuesto: string;
+  duracion: string;
+  solvenciaEconomica: string[];
+  solvenciaTecnica: string[];
+  criteriosDeAdjudicacion: { criterio: string; peso: string; automatico: boolean }[];
+  garantias: string[];
+  puntosDeAtencion: string[];
+}
+
+export interface ResumenGuardado {
+  licitacionId: number;
+  documentoUrl: string;
+  documentoNombre: string | null;
+  modelo: string;
+  resumen: ResumenDePliego;
+  aviso: string | null;
+  creadoEn: string;
+}
+
+export interface ResultadoSemantico {
+  licitacion: LicitacionResumen;
+  /** De 1 (igual) a -1. */
+  similitud: number;
+}
