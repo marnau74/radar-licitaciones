@@ -3,6 +3,24 @@
 Formato de [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/); versiones con
 [versionado semántico](https://semver.org/lang/es/).
 
+## [Sin publicar]
+
+### Añadido
+
+- **Resumen de pliegos con IA** en la ficha: objeto, presupuesto, duración, solvencia, criterios de adjudicación
+  con su peso, garantías y puntos de atención. Con Claude (SDK oficial de Anthropic, PDF entero y salida
+  estructurada, con reserva automática ante rechazos) o con un modelo local en Ollama. Cada pliego se resume una vez
+  y se guarda; resumir uno nuevo necesita sesión y tiene un límite diario por usuario. Solo se descargan documentos
+  de la licitación y de la Plataforma de Contratación, por HTTPS.
+- **Búsqueda por significado** (`/significado` y `GET /api/v1/licitaciones/semantica`): embeddings locales con
+  `bge-m3` en Ollama y PostgreSQL con pgvector (HNSW), vectorizando lo nuevo cada pocos minutos.
+- `GET /api/v1/ia/estado` para saber qué funciones de IA tiene el servidor. Todo apagado por defecto (ADR 6).
+
+### Cambiado
+
+- PostgreSQL pasa a la imagen `pgvector/pgvector:pg17` en todos los entornos. Al actualizar un servidor existente
+  hay que reindexar la base de datos una vez (ver docs/despliegue.md).
+
 ## [0.1.0] - 2026-10-06
 
 Primera versión.

@@ -9,7 +9,8 @@ Buscador de licitaciones públicas con alertas por correo. Carga cada mañana lo
 para buscarlo bien. Por texto en español (sin importar tildes), tipo de contrato, procedimiento, lugar, actividad
 (CPV), importe y plazo. A cada usuario le avisa de las licitaciones nuevas que encajan con sus búsquedas guardadas.
 
-**Java 25 · Spring Boot 4 · Spring Batch · Spring Modulith · PostgreSQL 17 · Keycloak · Angular 22**
+**Java 25 · Spring Boot 4 · Spring Batch · Spring Modulith · PostgreSQL 17 + pgvector · Keycloak · Angular 22 ·
+Claude (SDK oficial de Anthropic) u Ollama**
 
 ![Búsqueda de licitaciones](docs/capturas/busqueda.png)
 
@@ -39,6 +40,12 @@ Las capturas son de datos reales: el mes de septiembre de 2026 completo.
   lo mismo.
 - **Cifras**: lo que está en plazo por tipo y por comunidad, y lo publicado cada mes.
 - **API pública** documentada con OpenAPI en `/api/docs`.
+- **IA (opcional, apagada por defecto)**:
+  - **Resumen de pliegos**: lee el PDF y saca lo que importa para decidir si presentarse (objeto, presupuesto,
+    solvencia, criterios de adjudicación con su peso, garantías y puntos de atención). Con Claude o con un modelo
+    local en Ollama; cada pliego se resume una vez y queda guardado para todos.
+  - **Búsqueda por significado**: «limpieza de colegios» encuentra también «higiene en centros educativos», con
+    embeddings locales y pgvector.
 
 ## Con datos reales
 
@@ -88,6 +95,7 @@ flowchart LR
 | `alertas` | Búsquedas guardadas (JPA), avisos tras cada ingesta y composición del correo resumen |
 | `correo` | Bandeja de salida en base de datos y envío con reintentos |
 | `seguridad` | Resource server de Keycloak: qué es público, qué necesita sesión y qué es de administración |
+| `ia` | Resumen de pliegos (Claude u Ollama, con salida estructurada) y búsqueda por significado (embeddings y pgvector) |
 
 Las decisiones, con sus alternativas y consecuencias, están en [docs/adr](docs/adr):
 
@@ -96,6 +104,7 @@ Las decisiones, con sus alternativas y consecuencias, están en [docs/adr](docs/
 3. [Modelo y búsqueda en PostgreSQL](docs/adr/0003-modelo-y-busqueda.md)
 4. [Seguridad con Keycloak y un solo origen](docs/adr/0004-seguridad.md)
 5. [Avisos fiables: evento persistido y bandeja de salida](docs/adr/0005-avisos-fiables.md)
+6. [IA: resumen de pliegos y búsqueda por significado](docs/adr/0006-ia.md)
 
 ## Ponerlo en marcha en local
 
@@ -134,12 +143,26 @@ Las dos usan la contraseña `radar-demo-2026`.
 
 Un mes histórico completo se carga entrando como administradora, en «Los datos», con el periodo (`202609`).
 
+### La IA (opcional)
+
+Con Claude para los resúmenes y Ollama para la búsqueda por significado:
+
+```bash
+docker compose --profile ia up -d
+docker compose exec ollama ollama pull bge-m3
+cd backend && ANTHROPIC_API_KEY=... RADAR_IA_RESUMENES=claude RADAR_IA_EMBEDDINGS=ollama ./mvnw spring-boot:run
+```
+
+Sin clave de Anthropic, todo en local: `docker compose exec ollama ollama pull qwen3:8b` y `RADAR_IA_RESUMENES=ollama`.
+El resumen aparece en la ficha de cada licitación con pliegos (resumir uno nuevo necesita sesión y tiene un límite
+diario por usuario, `RADAR_IA_RESUMENES_POR_DIA`); la búsqueda, en <http://localhost:4200/significado>.
+
 ## Pruebas
 
 | | Qué cubre | Cómo |
 |---|---|---|
-| Backend: 58 pruebas | Lector CODICE con una página real del feed, upsert por versión, anulaciones, búsqueda y filtros por la API, job de Spring Batch completo con avisos y correo (que llega a Mailpit), seguridad con tokens reales de Keycloak, límites entre módulos | `cd backend && ./mvnw verify` (Testcontainers: PostgreSQL, Keycloak y Mailpit reales; cobertura con JaCoCo, 85 % de líneas) |
-| Frontend: 29 pruebas | Filtro y URL, formatos, interceptor del token, búsqueda, formulario de alertas, tarjeta de resultado | `cd frontend && npm test` (Vitest) |
+| Backend: 81 pruebas | Lector CODICE con una página real del feed, upsert por versión, anulaciones, búsqueda y filtros por la API, job de Spring Batch completo con avisos y correo (que llega a Mailpit), seguridad con tokens reales de Keycloak, límites entre módulos, IA con Claude y Ollama simulados y búsqueda por significado con pgvector | `cd backend && ./mvnw verify` (Testcontainers: PostgreSQL, Keycloak y Mailpit reales; cobertura con JaCoCo, 85 % de líneas) |
+| Frontend: 33 pruebas | Filtro y URL, formatos, interceptor del token, búsqueda, formulario de alertas, tarjeta de resultado | `cd frontend && npm test` (Vitest) |
 | De punta a punta: 6 pruebas | La aplicación completa como en producción (imágenes, Caddy, Keycloak): búsqueda, ficha, filtros, cifras, inicio de sesión y alertas, con comprobación de accesibilidad (axe, WCAG 2.1 AA) | `docker compose -f compose.e2e.yaml up -d --build --wait` y `cd frontend && npx playwright test` |
 
 La CI pasa todo eso en cada cambio, además de Spotless, ESLint, Prettier, `npm audit`, CodeQL (Java y
