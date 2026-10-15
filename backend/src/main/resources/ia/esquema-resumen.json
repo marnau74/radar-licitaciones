@@ -1,0 +1,37 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "objeto",
+    "presupuesto",
+    "duracion",
+    "solvenciaEconomica",
+    "solvenciaTecnica",
+    "criteriosDeAdjudicacion",
+    "garantias",
+    "puntosDeAtencion"
+  ],
+  "properties": {
+    "objeto": { "type": "string", "description": "Qué se contrata, en una o dos frases claras." },
+    "presupuesto": { "type": "string", "description": "Presupuesto base de licitación y valor estimado, con y sin IVA si constan." },
+    "duracion": { "type": "string", "description": "Duración del contrato y prórrogas posibles." },
+    "solvenciaEconomica": { "type": "array", "items": { "type": "string" }, "description": "Requisitos de solvencia económica y financiera, uno por elemento, con cifras." },
+    "solvenciaTecnica": { "type": "array", "items": { "type": "string" }, "description": "Requisitos de solvencia técnica o profesional y clasificación exigida, uno por elemento." },
+    "criteriosDeAdjudicacion": {
+      "type": "array",
+      "description": "Criterios de adjudicación con su peso, en el orden del pliego.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["criterio", "peso", "automatico"],
+        "properties": {
+          "criterio": { "type": "string" },
+          "peso": { "type": "string" },
+          "automatico": { "type": "boolean", "description": "true si se valora con fórmula; false si es un juicio de valor." }
+        }
+      }
+    },
+    "garantias": { "type": "array", "items": { "type": "string" }, "description": "Garantías provisional y definitiva, con importe o porcentaje." },
+    "puntosDeAtencion": { "type": "array", "items": { "type": "string" }, "description": "Lo que puede descalificar o encarecer una oferta." }
+  }
+}

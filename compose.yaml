@@ -10,7 +10,7 @@ name: radar-dev
 
 services:
   postgres:
-    image: postgres:17-alpine
+    image: pgvector/pgvector:pg17
     environment:
       POSTGRES_DB: radar
       POSTGRES_USER: radar
@@ -24,6 +24,16 @@ services:
       interval: 5s
       timeout: 3s
       retries: 20
+
+  # Modelos locales para la IA, opcional:  docker compose --profile ia up -d
+  # y una vez:  docker compose exec ollama ollama pull bge-m3   (y qwen3:8b para resumir sin Claude)
+  ollama:
+    image: ollama/ollama:0.40.5
+    profiles: [ia]
+    ports:
+      - "11434:11434"
+    volumes:
+      - modelos-ollama:/root/.ollama
 
   keycloak:
     image: quay.io/keycloak/keycloak:26.8
@@ -45,3 +55,4 @@ services:
 
 volumes:
   datos-postgres:
+  modelos-ollama:

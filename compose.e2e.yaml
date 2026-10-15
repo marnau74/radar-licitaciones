@@ -54,7 +54,7 @@ services:
       - ./infra/keycloak/realm-radar.json:/opt/keycloak/data/import/realm-radar.json:ro
 
   postgres:
-    image: postgres:17-alpine
+    image: pgvector/pgvector:pg17
     environment:
       POSTGRES_DB: radar
       POSTGRES_USER: radar

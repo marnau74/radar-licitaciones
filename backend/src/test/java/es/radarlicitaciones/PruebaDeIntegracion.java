@@ -33,7 +33,8 @@ public abstract class PruebaDeIntegracion {
     void vaciarDatos() {
         jdbc.sql("""
                         TRUNCATE aviso, alerta, correo_saliente, resultado, lote, licitacion, organo, anulacion,
-                                 ingesta, ingesta_marca, event_publication RESTART IDENTITY CASCADE
+                                 ingesta, ingesta_marca, event_publication, resumen_pliego, uso_ia, licitacion_vector,
+                                 ia_cursor RESTART IDENTITY CASCADE
                         """).update();
     }
 }

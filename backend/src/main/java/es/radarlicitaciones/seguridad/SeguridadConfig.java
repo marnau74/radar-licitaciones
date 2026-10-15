@@ -47,8 +47,12 @@ class SeguridadConfig {
                                 "/api/v1/estadisticas",
                                 "/api/v1/catalogos/**",
                                 "/api/v1/organos/**",
-                                "/api/v1/ingesta/estado")
+                                "/api/v1/ingesta/estado",
+                                "/api/v1/ia/estado")
                         .permitAll()
+                        // Resumir un pliego cuesta dinero o tiempo de máquina: necesita sesión (y tiene límite diario)
+                        .requestMatchers(HttpMethod.POST, "/api/v1/licitaciones/*/resumenes")
+                        .authenticated()
                         .requestMatchers("/api/openapi/**", "/api/docs/**", "/api/docs", "/api/swagger-ui/**")
                         .permitAll()
                         .requestMatchers("/actuator/health/**", "/actuator/info")

@@ -52,6 +52,12 @@ services:
       SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH: ${SMTP_AUTENTICACION:-true}
       RADAR_CORREO_REMITENTE: ${CORREO_REMITENTE:?falta CORREO_REMITENTE}
       RADAR_URL_WEB: https://${RADAR_DOMINIO}
+      # IA, opcional (docs/adr/0006-ia.md): sin estas variables queda apagada
+      RADAR_IA_RESUMENES: ${IA_RESUMENES:-ninguno}
+      RADAR_IA_RESUMENES_POR_DIA: ${IA_RESUMENES_POR_DIA:-10}
+      RADAR_IA_EMBEDDINGS: ${IA_EMBEDDINGS:-ninguno}
+      RADAR_IA_OLLAMA_URL: ${IA_OLLAMA_URL:-http://ollama:11434}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
       JAVA_TOOL_OPTIONS: -XX:MaxRAMPercentage=75
     volumes:
       - descargas:/datos/descargas
@@ -94,7 +100,7 @@ services:
         condition: service_healthy
 
   postgres:
-    image: postgres:17-alpine
+    image: pgvector/pgvector:pg17
     restart: unless-stopped
     environment:
       POSTGRES_DB: radar

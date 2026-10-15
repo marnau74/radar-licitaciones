@@ -89,6 +89,22 @@ radar:
       - contrataciondelsectorpublico.gob.es
       - contrataciondelestado.es
     fichero-inicial: ${RADAR_INGESTA_INICIAL:}
+  # IA, apagada por defecto (ver docs/adr/0006-ia.md). Resúmenes de pliegos: ninguno, claude u ollama.
+  # Búsqueda por significado: ninguno u ollama (embeddings locales).
+  ia:
+    resumenes:
+      proveedor: ${RADAR_IA_RESUMENES:ninguno}
+      por-usuario-y-dia: ${RADAR_IA_RESUMENES_POR_DIA:10}
+    embeddings:
+      proveedor: ${RADAR_IA_EMBEDDINGS:ninguno}
+    claude:
+      clave-api: ${ANTHROPIC_API_KEY:}
+      modelo: ${RADAR_IA_CLAUDE_MODELO:claude-opus-5-5}
+      esfuerzo: ${RADAR_IA_CLAUDE_ESFUERZO:medium}
+    ollama:
+      url: ${RADAR_IA_OLLAMA_URL:http://localhost:11434}
+      modelo-texto: ${RADAR_IA_OLLAMA_MODELO:qwen3:8b}
+      modelo-embeddings: ${RADAR_IA_OLLAMA_EMBEDDINGS:bge-m3}
   correo:
     remitente: ${RADAR_CORREO_REMITENTE:avisos@radar.localhost}
     url-web: ${RADAR_URL_WEB:http://localhost:4200}
