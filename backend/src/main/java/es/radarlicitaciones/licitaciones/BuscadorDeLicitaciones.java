@@ -5,6 +5,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 /** Consultas sobre las licitaciones guardadas. */
 public interface BuscadorDeLicitaciones {
@@ -33,4 +34,16 @@ public interface BuscadorDeLicitaciones {
 
     /** Los resúmenes de estas licitaciones, en el orden recibido; las que no existen se omiten. */
     List<LicitacionResumen> porIds(Collection<Long> ids);
+
+    /** Los documentos publicados con una licitación (vacío si la licitación no existe). */
+    Optional<List<DocumentoDeLicitacion>> documentos(long id);
+
+    /**
+     * Textos de las licitaciones guardadas después de una posición, en el orden en que se guardaron: así quien indexa
+     * puede seguir donde lo dejó.
+     *
+     * @param ingeridasDesde guardadas en este instante o después...
+     * @param despuesDeId ...y, si es justo en ese instante, con un número mayor
+     */
+    List<TextoParaIndexar> paraIndexar(Instant ingeridasDesde, long despuesDeId, int limite);
 }

@@ -3,9 +3,11 @@ package es.radarlicitaciones.licitaciones.internal;
 import es.radarlicitaciones.compartido.Pagina;
 import es.radarlicitaciones.compartido.PeticionNoValida;
 import es.radarlicitaciones.licitaciones.BuscadorDeLicitaciones;
+import es.radarlicitaciones.licitaciones.DocumentoDeLicitacion;
 import es.radarlicitaciones.licitaciones.FiltroDeBusqueda;
 import es.radarlicitaciones.licitaciones.LicitacionResumen;
 import es.radarlicitaciones.licitaciones.OrdenDeBusqueda;
+import es.radarlicitaciones.licitaciones.TextoParaIndexar;
 import java.sql.Array;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -20,11 +22,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.json.JsonMapper;
 
 /**
  * Búsqueda con SQL generado a partir del filtro. Solo se añaden las condiciones de los criterios que vienen, y todos
@@ -42,12 +47,16 @@ class BuscadorJdbc implements BuscadorDeLicitaciones {
             l.financiacion_ue, l.anulada
             """;
 
+    private static final TypeReference<List<DocumentoDeLicitacion>> DOCUMENTOS = new TypeReference<>() {};
+
     private final JdbcClient jdbc;
     private final Clock reloj;
+    private final JsonMapper json;
 
-    BuscadorJdbc(JdbcClient jdbc, Clock reloj) {
+    BuscadorJdbc(JdbcClient jdbc, Clock reloj, JsonMapper json) {
         this.jdbc = jdbc;
         this.reloj = reloj;
+        this.json = json;
     }
 
     @Override
@@ -137,6 +146,42 @@ class BuscadorJdbc implements BuscadorDeLicitaciones {
                 .stream()
                 .collect(Collectors.toMap(LicitacionResumen::id, Function.identity()));
         return ids.stream().map(encontradas::get).filter(Objects::nonNull).toList();
+    }
+
+    @Override
+    public Optional<List<DocumentoDeLicitacion>> documentos(long id) {
+        return jdbc.sql("SELECT documentos FROM licitacion WHERE id = :id")
+                .param("id", id)
+                .query((rs, fila) -> json.readValue(rs.getString("documentos"), DOCUMENTOS))
+                .optional();
+    }
+
+    @Override
+    public List<TextoParaIndexar> paraIndexar(Instant ingeridasDesde, long despuesDeId, int limite) {
+        // El texto junta lo que dice de qué va la licitación; el órgano también, porque «del ayuntamiento de X» o
+        // «de un hospital» es parte de lo que se busca.
+        return jdbc.sql("""
+                        SELECT l.id, l.ingerida_en, l.plazo_presentacion, l.anulada,
+                               concat_ws('. ', l.titulo, o.nombre,
+                                         (SELECT string_agg(c.nombre, '; ') FROM cat_cpv c WHERE c.codigo = ANY (l.cpv)),
+                                         (SELECT string_agg(lo.objeto, '; ' ORDER BY lo.numero) FROM lote lo
+                                           WHERE lo.licitacion_id = l.id AND lo.objeto IS NOT NULL),
+                                         l.lugar) AS texto
+                          FROM licitacion l JOIN organo o ON o.id = l.organo_id
+                         WHERE (l.ingerida_en, l.id) > (:desde, :despuesDe)
+                         ORDER BY l.ingerida_en, l.id
+                         LIMIT :limite
+                        """)
+                .param("desde", OffsetDateTime.ofInstant(ingeridasDesde, ZONA))
+                .param("despuesDe", despuesDeId)
+                .param("limite", limite)
+                .query((rs, fila) -> new TextoParaIndexar(
+                        rs.getLong("id"),
+                        rs.getObject("ingerida_en", OffsetDateTime.class).toInstant(),
+                        rs.getObject("plazo_presentacion", OffsetDateTime.class),
+                        rs.getBoolean("anulada"),
+                        rs.getString("texto")))
+                .list();
     }
 
     private static String orden(OrdenDeBusqueda orden, FiltroDeBusqueda filtro) {
