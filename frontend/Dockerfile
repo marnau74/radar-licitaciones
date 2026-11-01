@@ -10,7 +10,7 @@ COPY . .
 # config.json lo sirve nginx a partir de las variables (ver la plantilla): el de desarrollo no entra en la imagen.
 RUN npm run build && rm dist/radar-web/browser/config.json
 
-FROM nginxinc/nginx-unprivileged:1.30-alpine
+FROM nginxinc/nginx-unprivileged:1.31-alpine
 COPY nginx/default.conf.template /etc/nginx/templates/default.conf.template
 COPY --from=construccion /src/dist/radar-web/browser /usr/share/nginx/html
 ENV RADAR_OIDC_EMISOR=http://localhost:8180/realms/radar \
