@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>4.1.1</version>
+        <version>4.1.2</version>
         <relativePath/>
     </parent>
 
@@ -25,14 +25,14 @@
 
     <properties>
         <java.version>25</java.version>
-        <spring-modulith.version>2.1.1</spring-modulith.version>
-        <springdoc.version>3.1.1</springdoc.version>
+        <spring-modulith.version>2.1.2</spring-modulith.version>
+        <springdoc.version>3.2.0</springdoc.version>
         <testcontainers-keycloak.version>4.4.0</testcontainers-keycloak.version>
-        <anthropic-java.version>2.73.0</anthropic-java.version>
+        <anthropic-java.version>3.3.0</anthropic-java.version>
         <pdfbox.version>3.0.8</pdfbox.version>
-        <spotless.version>3.10.3</spotless.version>
+        <spotless.version>3.10.4</spotless.version>
         <palantir-java-format.version>2.102.0</palantir-java-format.version>
-        <jacoco.version>0.8.15</jacoco.version>
+        <jacoco.version>0.8.16</jacoco.version>
         <!-- JaCoCo lo rellena con su agente; vacío si se salta -->
         <argLine/>
     </properties>
